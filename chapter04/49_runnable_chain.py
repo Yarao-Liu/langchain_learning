@@ -9,7 +9,7 @@
 
 from langchain_core.output_parsers import StrOutputParser  # 字符串输出解析器
 from langchain_core.prompts import ChatPromptTemplate  # 聊天提示模板
-from langchain_core.runnables import chain  # 链式处理装饰器
+from langchain_core.runnables import chain, RunnablePassthrough  # 链式处理装饰器
 from langchain_ollama import OllamaLLM  # Ollama语言模型
 
 # 创建第一个提示模板：生成故事
@@ -44,4 +44,12 @@ def custom_chain(text):
 print("=== 使用@chain装饰器的处理链 ===")
 # 使用invoke方法调用处理链
 result = custom_chain.invoke("有志者事竟成")
+print(result)
+
+@chain
+def custom_chain2(text):
+    chain = prompt1 | llm | output_parser | RunnablePassthrough() | prompt2 | llm | output_parser
+    return chain.invoke({"topic": text})
+
+result = custom_chain2.invoke("有志者事竟成")
 print(result)
