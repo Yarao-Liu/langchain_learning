@@ -1,6 +1,6 @@
 # LangChain 中文学习实践项目
 
-这是一个全面的 LangChain 框架中文学习项目，从基础连接到高级应用，系统性地展示了如何使用 LangChain 构建各种 AI 应用。项目包含 60+ 个实践示例，涵盖模型连接、提示工程、输出解析、RAG 系统、链式处理、智能代理和系统工具集成等核心功能。
+这是一个全面的 LangChain 框架中文学习项目，从基础连接到高级应用，系统性地展示了如何使用 LangChain 构建各种 AI 应用。项目包含 70+ 个实践示例，涵盖模型连接、提示工程、输出解析、RAG 系统、链式处理、智能代理和渐进式SalesGPT开发等核心功能。
 
 ## 项目特点
 
@@ -10,6 +10,7 @@
 - 📚 **丰富的文档处理**：支持 PDF、HTML、文本、Markdown 等多种格式
 - 🔍 **高效检索系统**：使用 FAISS、Chroma 向量数据库进行语义检索
 - 🤖 **智能代理系统**：包含搜索、工具调用、记忆管理等高级功能
+- 🎯 **渐进式开发**：SalesGPT系列展示从简单到企业级的完整开发过程
 - 💡 **详细注释**：每个示例都有完整的中文注释和说明
 - 🛠️ **实用工具**：包含自定义解析器、记忆管理、错误处理等实用组件
 
@@ -92,9 +93,19 @@
 │   ├── 63_search_arXiv.py             # arXiv 学术搜索
 │   └── data/                          # 代理数据
 │       └── memory_data.json           # 记忆数据文件
-├── chapter06/          # 高级应用案例
-│   ├── 61_agent_shell.py              # Shell 命令执行工具
-│   └── 64_agent_salesGPT.py           # 智能销售对话代理
+├── chapter06/          # SalesGPT 智能销售代理系列
+│   ├── 01_basic_salesGPT.py           # v1.0 基础版销售代理
+│   ├── 02_enhanced_conversation_salesGPT.py  # v2.0 增强对话版
+│   ├── 03_knowledge_based_salesGPT.py # v3.0 知识库版
+│   ├── 04_rag_enhanced_salesGPT.py    # v4.0 RAG增强版
+│   ├── 05_enterprise_salesGPT.py      # v5.0 企业版
+│   ├── demo_all_versions.py           # 全版本演示脚本
+│   ├── test_imports.py                # 导入测试脚本
+│   ├── README.md                      # SalesGPT系列详细说明
+│   └── data/                          # 数据文件
+│       ├── car_knowledge_base.txt     # 产品知识库
+│       ├── comprehensive_sales_data.json  # 综合销售数据
+│       └── product_summary.json       # 产品摘要信息
 └── .env                               # 环境变量配置文件
 ```
 
@@ -191,6 +202,10 @@ python chapter03/37_rag_unstructured_pdfDirectoryLoader.py
 
 # 智能代理示例
 python chapter05/56_agent_custom.py
+
+# SalesGPT 销售代理示例
+python chapter06/01_basic_salesGPT.py
+python chapter06/demo_all_versions.py
 ```
 
 ## 章节详解
@@ -239,12 +254,14 @@ python chapter05/56_agent_custom.py
 - **记忆管理**: 对话历史和上下文管理
 - **高级代理**: 多工具协作和复杂任务处理
 
-### Chapter 06: 高级应用案例 🚀
-学习构建完整的 AI 应用系统：
-- **Shell 工具**: 安全的系统命令执行和自动化
-- **销售代理**: 多阶段智能销售对话系统
-- **工作流自动化**: 复杂业务流程的 AI 化
-- **实际部署**: 生产环境的最佳实践
+### Chapter 06: SalesGPT 智能销售代理系列 🚀
+从简单到复杂的渐进式销售AI开发：
+- **v1.0 基础版**: 最简单的销售对话代理，学习基础概念
+- **v2.0 增强对话版**: 智能阶段分析和改进的对话管理
+- **v3.0 知识库版**: 集成关键词匹配的产品知识库
+- **v4.0 RAG增强版**: 基于向量检索的智能知识问答
+- **v5.0 企业版**: 完整的CRM和客户管理功能
+- **演示系统**: 全版本对比演示和测试工具
 
 ## 核心功能特性
 
@@ -289,6 +306,7 @@ python chapter05/56_agent_custom.py
 ### 🔥 进阶路径
 1. **Chapter 04**: 掌握链式处理，构建复杂工作流
 2. **Chapter 05**: 开发智能代理，集成外部工具
+3. **Chapter 06**: SalesGPT系列，从简单到企业级的完整开发
 
 ### 💡 实践建议
 - 每个示例都包含详细注释，建议逐行阅读理解
@@ -313,6 +331,18 @@ python chapter05/56_agent_custom.py
 - 调整重叠长度 (chunk_overlap)
 - 使用合适的相似度阈值
 - 考虑使用重排序模型
+
+### Q: SalesGPT系列应该从哪个版本开始学习？
+- **初学者**: 从v1.0基础版开始，理解基本概念
+- **有经验者**: 可以直接从v3.0知识库版开始
+- **企业应用**: 重点学习v4.0和v5.0版本
+- **快速体验**: 运行demo_all_versions.py查看所有版本对比
+
+### Q: 如何自定义SalesGPT的产品信息？
+- **v3.0版本**: 修改SimpleKnowledgeBase类中的knowledge_data
+- **v4.0/v5.0版本**: 编辑data/car_knowledge_base.txt文件
+- **销售流程**: 修改SALES_STAGES字典自定义销售阶段
+- **人员信息**: 更新salesperson_info字典
 
 ## 贡献指南
 

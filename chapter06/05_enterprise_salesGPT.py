@@ -143,16 +143,16 @@ class CustomerManager:
         """加载客户数据"""
         try:
             # 尝试从文件加载客户数据
-            if os.path.exists("chapter06/data/customers.json"):
-                with open("chapter06/data/customers.json", "r", encoding="utf-8") as f:
+            if os.path.exists("data/customers.json"):
+                with open("data/customers.json", "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for customer_data in data.get("customers", []):
                         customer = CustomerProfile(**customer_data)
                         self.customers[customer.customer_id] = customer
             
             # 加载交互记录
-            if os.path.exists("chapter06/data/interactions.json"):
-                with open("chapter06/data/interactions.json", "r", encoding="utf-8") as f:
+            if os.path.exists("data/interactions.json"):
+                with open("data/interactions.json", "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for interaction_data in data.get("interactions", []):
                         interaction = SalesInteraction(**interaction_data)
@@ -228,20 +228,20 @@ class CustomerManager:
     def save_data(self):
         """保存客户数据"""
         try:
-            os.makedirs("chapter06/data", exist_ok=True)
+            os.makedirs("data", exist_ok=True)
             
             # 保存客户数据
             customers_data = {
                 "customers": [asdict(customer) for customer in self.customers.values()]
             }
-            with open("chapter06/data/customers.json", "w", encoding="utf-8") as f:
+            with open("data/customers.json", "w", encoding="utf-8") as f:
                 json.dump(customers_data, f, ensure_ascii=False, indent=2)
             
             # 保存交互记录
             interactions_data = {
                 "interactions": [asdict(interaction) for interaction in self.interactions]
             }
-            with open("chapter06/data/interactions.json", "w", encoding="utf-8") as f:
+            with open("data/interactions.json", "w", encoding="utf-8") as f:
                 json.dump(interactions_data, f, ensure_ascii=False, indent=2)
             
             print("✅ 客户数据已保存")
@@ -347,7 +347,7 @@ class EnterpriseKnowledgeBase:
 
     def __init__(self, knowledge_file_path: str = None):
         """初始化企业知识库"""
-        self.knowledge_file_path = knowledge_file_path or "chapter06/data/car_knowledge_base.txt"
+        self.knowledge_file_path = knowledge_file_path or "chapter07/data/car_knowledge_base.txt"
         self.vectorstore = None
         self.qa_chain = None
         self.setup_knowledge_base()

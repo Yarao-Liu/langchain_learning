@@ -41,7 +41,8 @@ def test_version_2():
     try:
         import importlib.util
         
-        spec = importlib.util.spec_from_file_location("enhanced_conversation_salesGPT", "02_enhanced_conversation_salesGPT.py")
+        spec = importlib.util.spec_from_file_location("enhanced_conversation_salesGPT",
+                                                      "02_enhanced_conversation_salesGPT.py")
         enhanced_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(enhanced_module)
         
