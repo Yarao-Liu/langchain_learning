@@ -1,0 +1,175 @@
+{
+  "customer_profiles": [
+    {
+      "id": "customer_001",
+      "name": "张先生",
+      "age": 35,
+      "occupation": "软件工程师",
+      "income": "年收入30-50万",
+      "family": "已婚，有一个5岁孩子",
+      "current_car": "2018年购买的燃油SUV",
+      "pain_points": [
+        "油费支出较高，每月约1500元",
+        "限行政策影响出行",
+        "希望体验智能化功能",
+        "关注环保和新技术"
+      ],
+      "preferences": [
+        "重视科技配置",
+        "关注安全性能",
+        "预算25-35万",
+        "偏好SUV车型"
+      ]
+    },
+    {
+      "id": "customer_002",
+      "name": "李女士",
+      "age": 28,
+      "occupation": "市场经理",
+      "income": "年收入20-30万",
+      "family": "单身，计划近期结婚",
+      "current_car": "无车，首次购车",
+      "pain_points": [
+        "对汽车了解有限",
+        "担心新能源车使用复杂",
+        "希望购车流程简单",
+        "关注保值率"
+      ],
+      "preferences": [
+        "外观时尚",
+        "操作简单",
+        "预算20-30万",
+        "偏好轿车或小型SUV"
+      ]
+    }
+  ],
+  "conversation_scenarios": [
+    {
+      "scenario_id": "scenario_001",
+      "title": "价格敏感型客户咨询",
+      "customer_profile": "customer_001",
+      "conversation_flow": [
+        {
+          "turn": 1,
+          "customer": "你好，我想了解一下问界汽车的价格",
+          "expected_stage": "1",
+          "sales_focus": "介绍品牌，了解客户需求"
+        },
+        {
+          "turn": 2,
+          "customer": "我现在开的是燃油车，想换新能源车，但担心价格太贵",
+          "expected_stage": "2",
+          "sales_focus": "确认客户资格，了解预算范围"
+        },
+        {
+          "turn": 3,
+          "customer": "预算大概30万左右，主要家用",
+          "expected_stage": "3",
+          "sales_focus": "介绍价值主张，强调性价比"
+        },
+        {
+          "turn": 4,
+          "customer": "问界M5怎么样？配置如何？",
+          "expected_stage": "4",
+          "sales_focus": "需求分析，详细介绍产品"
+        }
+      ]
+    },
+    {
+      "scenario_id": "scenario_002",
+      "title": "技术关注型客户咨询",
+      "customer_profile": "customer_001",
+      "conversation_flow": [
+        {
+          "turn": 1,
+          "customer": "听说问界汽车有华为的技术，智能驾驶怎么样？",
+          "expected_stage": "1",
+          "sales_focus": "介绍技术优势"
+        },
+        {
+          "turn": 2,
+          "customer": "ADS系统安全吗？有哪些功能？",
+          "expected_stage": "4",
+          "sales_focus": "详细介绍智能驾驶功能"
+        },
+        {
+          "turn": 3,
+          "customer": "续航里程怎么样？充电方便吗？",
+          "expected_stage": "5",
+          "sales_focus": "展示解决方案，消除里程焦虑"
+        }
+      ]
+    }
+  ],
+  "product_knowledge_qa": [
+    {
+      "category": "价格信息",
+      "qa_pairs": [
+        {
+          "question": "问界M5多少钱？",
+          "answer": "问界M5价格区间为25.98-31.98万元，包括标准版、豪华版和旗舰版三个配置。"
+        },
+        {
+          "question": "问界M7价格如何？",
+          "answer": "问界M7价格区间为28.98-37.98万元，提供Plus版、Max版和Ultra版三种选择。"
+        }
+      ]
+    },
+    {
+      "category": "技术特点",
+      "qa_pairs": [
+        {
+          "question": "华为ADS智能驾驶系统有什么特点？",
+          "answer": "华为ADS系统具备L2+级别智能驾驶能力，支持城市NOA、高速NOA、自动泊车等功能，安全可靠。"
+        },
+        {
+          "question": "增程式技术有什么优势？",
+          "answer": "增程式技术结合了电动车的驾驶体验和燃油车的便利性，无里程焦虑，使用成本低。"
+        }
+      ]
+    }
+  ],
+  "objection_handling": [
+    {
+      "objection": "价格太贵了",
+      "response_strategy": "强调总体拥有成本更低，包括燃油费用节省、保养成本降低、政策优惠等",
+      "supporting_data": "相比同级燃油车，每年可节省燃油费用约8000-12000元"
+    },
+    {
+      "objection": "担心新能源车不可靠",
+      "response_strategy": "介绍华为技术背景、完善的质保政策、广泛的服务网络",
+      "supporting_data": "整车质保3年10万公里，电池质保8年16万公里"
+    },
+    {
+      "objection": "充电不方便",
+      "response_strategy": "介绍增程式技术优势、充电网络覆盖、家用充电桩安装服务",
+      "supporting_data": "华为超充网络覆盖全国主要城市，30分钟充电80%"
+    }
+  ],
+  "sales_tips": [
+    {
+      "stage": "介绍阶段",
+      "tips": [
+        "热情问候，建立信任",
+        "简要介绍品牌优势",
+        "快速了解客户基本需求"
+      ]
+    },
+    {
+      "stage": "需求分析阶段",
+      "tips": [
+        "多问开放式问题",
+        "仔细聆听客户痛点",
+        "记录关键信息"
+      ]
+    },
+    {
+      "stage": "解决方案展示阶段",
+      "tips": [
+        "针对性介绍产品特点",
+        "用数据支撑说明",
+        "强调与客户需求的匹配度"
+      ]
+    }
+  ]
+}
