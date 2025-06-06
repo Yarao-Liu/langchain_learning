@@ -309,7 +309,7 @@ class EnterpriseKnowledgeBase:
 
     def __init__(self, knowledge_file_path: str = None):
         """初始化企业知识库"""
-        self.knowledge_file_path = knowledge_file_path or "chapter06/data/enterprise_knowledge_base.txt"
+        self.knowledge_file_path = knowledge_file_path or "data/enterprise_knowledge_base.txt"
         self.vectorstore = None
         self.qa_chain = None
         self.setup_knowledge_base()
