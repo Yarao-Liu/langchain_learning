@@ -23,30 +23,22 @@
 版本：5.0 - 企业版
 """
 
+import datetime
 import os
 import warnings
-import json
-import datetime
-from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
 from enum import Enum
+from typing import Dict, Any, List, Optional
 
 import dotenv
-from langchain.chains.llm import LLMChain
 from langchain.chains import RetrievalQA
-from langchain_core.language_models import BaseLLM
+from langchain.chains.llm import LLMChain
+from langchain_community.document_loaders import TextLoader
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
-from langchain_community.document_loaders import TextLoader
-from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import CharacterTextSplitter
-
-# 尝试导入嵌入模型
-try:
-    from langchain_community.embeddings import HuggingFaceEmbeddings
-    HUGGINGFACE_AVAILABLE = True
-except ImportError:
-    HUGGINGFACE_AVAILABLE = False
 
 # 过滤弃用警告
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -65,7 +57,7 @@ if not api_key:
 llm = ChatOpenAI(
     api_key=api_key,
     base_url="https://api.siliconflow.cn/v1/",
-    model="Qwen/Qwen2.5-7B-Instruct",
+    model="Qwen/Qwen2.5-72B-Instruct",
     temperature=0.1
 )
 
@@ -80,6 +72,7 @@ SALES_STAGES = {
     "7": "成交推进：推进销售进程，提出具体的下一步行动"
 }
 
+
 class CustomerStatus(Enum):
     """客户状态枚举"""
     LEAD = "潜在客户"
@@ -90,6 +83,7 @@ class CustomerStatus(Enum):
     CLOSED_WON = "成交"
     CLOSED_LOST = "流失"
 
+
 class InteractionChannel(Enum):
     """交互渠道枚举"""
     PHONE = "电话"
@@ -97,6 +91,7 @@ class InteractionChannel(Enum):
     CHAT = "在线聊天"
     MEETING = "面对面会议"
     VIDEO_CALL = "视频通话"
+
 
 @dataclass
 class CustomerProfile:
@@ -117,6 +112,7 @@ class CustomerProfile:
     last_contact: str
     notes: str = ""
 
+
 @dataclass
 class SalesInteraction:
     """销售互动记录数据类"""
@@ -130,38 +126,21 @@ class SalesInteraction:
     next_action: str
     salesperson: str
 
+
 class CustomerManager:
     """客户管理系统"""
-    
+
     def __init__(self):
         """初始化客户管理器"""
         self.customers: Dict[str, CustomerProfile] = {}
         self.interactions: List[SalesInteraction] = []
         self.load_customer_data()
-    
+
     def load_customer_data(self):
-        """加载客户数据"""
-        try:
-            # 尝试从文件加载客户数据
-            if os.path.exists("data/customers.json"):
-                with open("data/customers.json", "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for customer_data in data.get("customers", []):
-                        customer = CustomerProfile(**customer_data)
-                        self.customers[customer.customer_id] = customer
-            
-            # 加载交互记录
-            if os.path.exists("data/interactions.json"):
-                with open("data/interactions.json", "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for interaction_data in data.get("interactions", []):
-                        interaction = SalesInteraction(**interaction_data)
-                        self.interactions.append(interaction)
-        
-        except Exception as e:
-            print(f"加载客户数据失败: {e}")
-            self._create_sample_customers()
-    
+        """初始化客户数据"""
+        # 直接创建示例客户数据，不从文件加载
+        self._create_sample_customers()
+
     def _create_sample_customers(self):
         """创建示例客户数据"""
         sample_customers = [
@@ -200,85 +179,67 @@ class CustomerManager:
                 notes="正在评估多个供应商，价格敏感"
             )
         ]
-        
+
         for customer in sample_customers:
             self.customers[customer.customer_id] = customer
-    
+
     def get_customer(self, customer_id: str) -> Optional[CustomerProfile]:
         """获取客户信息"""
         return self.customers.get(customer_id)
-    
+
     def update_customer_status(self, customer_id: str, status: CustomerStatus):
         """更新客户状态"""
         if customer_id in self.customers:
             self.customers[customer_id].status = status
             self.customers[customer_id].last_contact = datetime.datetime.now().isoformat()
-    
+
     def add_interaction(self, interaction: SalesInteraction):
         """添加交互记录"""
         self.interactions.append(interaction)
         # 更新客户最后联系时间
         if interaction.customer_id in self.customers:
             self.customers[interaction.customer_id].last_contact = interaction.timestamp
-    
+
     def get_customer_interactions(self, customer_id: str) -> List[SalesInteraction]:
         """获取客户的所有交互记录"""
         return [i for i in self.interactions if i.customer_id == customer_id]
-    
+
     def save_data(self):
-        """保存客户数据"""
-        try:
-            os.makedirs("data", exist_ok=True)
-            
-            # 保存客户数据
-            customers_data = {
-                "customers": [asdict(customer) for customer in self.customers.values()]
-            }
-            with open("data/customers.json", "w", encoding="utf-8") as f:
-                json.dump(customers_data, f, ensure_ascii=False, indent=2)
-            
-            # 保存交互记录
-            interactions_data = {
-                "interactions": [asdict(interaction) for interaction in self.interactions]
-            }
-            with open("data/interactions.json", "w", encoding="utf-8") as f:
-                json.dump(interactions_data, f, ensure_ascii=False, indent=2)
-            
-            print("✅ 客户数据已保存")
-        
-        except Exception as e:
-            print(f"❌ 保存客户数据失败: {e}")
+        """保存客户数据（内存中保存，不写入文件）"""
+        # 数据已在内存中，无需保存到文件
+        print("✅ 客户数据已在内存中保存")
+
 
 class SalesAnalytics:
     """销售数据分析系统"""
-    
+
     def __init__(self, customer_manager: CustomerManager):
         """初始化分析系统"""
         self.customer_manager = customer_manager
-    
+
     def get_sales_summary(self) -> Dict[str, Any]:
         """获取销售摘要"""
         customers = list(self.customer_manager.customers.values())
         interactions = self.customer_manager.interactions
-        
+
         # 统计客户状态分布
         status_count = {}
         for customer in customers:
             status = customer.status.value
             status_count[status] = status_count.get(status, 0) + 1
-        
+
         # 统计交互渠道分布
         channel_count = {}
         for interaction in interactions:
             channel = interaction.channel.value
             channel_count[channel] = channel_count.get(channel, 0) + 1
-        
+
         # 统计阶段分布
         stage_count = {}
         for interaction in interactions:
             stage = interaction.stage
             stage_count[stage] = stage_count.get(stage, 0) + 1
-        
+
         return {
             "total_customers": len(customers),
             "total_interactions": len(interactions),
@@ -287,23 +248,23 @@ class SalesAnalytics:
             "stage_distribution": stage_count,
             "conversion_rate": self._calculate_conversion_rate(customers)
         }
-    
+
     def _calculate_conversion_rate(self, customers: List[CustomerProfile]) -> float:
         """计算转化率"""
         if not customers:
             return 0.0
-        
+
         closed_won = sum(1 for c in customers if c.status == CustomerStatus.CLOSED_WON)
         return (closed_won / len(customers)) * 100
-    
+
     def get_customer_insights(self, customer_id: str) -> Dict[str, Any]:
         """获取客户洞察"""
         customer = self.customer_manager.get_customer(customer_id)
         if not customer:
             return {}
-        
+
         interactions = self.customer_manager.get_customer_interactions(customer_id)
-        
+
         return {
             "customer_profile": asdict(customer),
             "interaction_count": len(interactions),
@@ -311,43 +272,44 @@ class SalesAnalytics:
             "engagement_score": self._calculate_engagement_score(interactions),
             "recommended_actions": self._get_recommended_actions(customer, interactions)
         }
-    
+
     def _calculate_engagement_score(self, interactions: List[SalesInteraction]) -> int:
         """计算客户参与度评分"""
         if not interactions:
             return 0
-        
+
         # 简单的评分算法：基于交互频率和最近活跃度
         recent_interactions = len([i for i in interactions[-5:]])  # 最近5次交互
         total_interactions = len(interactions)
-        
+
         score = min(100, (recent_interactions * 20) + (total_interactions * 5))
         return score
-    
+
     def _get_recommended_actions(self, customer: CustomerProfile, interactions: List[SalesInteraction]) -> List[str]:
         """获取推荐行动"""
         actions = []
-        
+
         if not interactions:
             actions.append("建立初次联系")
         elif len(interactions) < 3:
             actions.append("增加互动频率")
-        
+
         if customer.status == CustomerStatus.LEAD:
             actions.append("进行资格确认")
         elif customer.status == CustomerStatus.QUALIFIED:
             actions.append("深入需求分析")
         elif customer.status == CustomerStatus.OPPORTUNITY:
             actions.append("准备解决方案提案")
-        
+
         return actions
+
 
 class EnterpriseKnowledgeBase:
     """企业级知识库系统"""
 
     def __init__(self, knowledge_file_path: str = None):
         """初始化企业知识库"""
-        self.knowledge_file_path = knowledge_file_path or "chapter07/data/car_knowledge_base.txt"
+        self.knowledge_file_path = knowledge_file_path or "chapter06/data/enterprise_knowledge_base.txt"
         self.vectorstore = None
         self.qa_chain = None
         self.setup_knowledge_base()
@@ -370,25 +332,34 @@ class EnterpriseKnowledgeBase:
             )
             texts = text_splitter.split_documents(documents)
 
-            if HUGGINGFACE_AVAILABLE:
-                try:
-                    embeddings = HuggingFaceEmbeddings(
-                        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-                    )
-                    self.vectorstore = FAISS.from_documents(texts, embeddings)
+            # 优先使用本地Ollama嵌入模型
+            embeddings = None
 
-                    self.qa_chain = RetrievalQA.from_chain_type(
-                        llm=llm,
-                        chain_type="stuff",
-                        retriever=self.vectorstore.as_retriever(search_kwargs={"k": 3}),
-                        return_source_documents=True
-                    )
-                    print("✅ 企业级知识库设置完成！")
-                except Exception as e:
-                    print(f"❌ 知识库设置失败: {e}")
+            try:
+                embeddings = OllamaEmbeddings(
+                    model="quentinz/bge-large-zh-v1.5:latest"
+                )
+                print("✅ 使用 Ollama 嵌入模型")
+            except Exception as e:
+                print(f"❌ Ollama 嵌入模型不可用: {e}")
+                print("请确保:")
+                print("1. Ollama 服务正在运行")
+                print("2. 模型 'quentinz/bge-large-zh-v1.5:latest' 已下载")
+                print("3. 可以通过以下命令下载模型:")
+                print("   ollama pull quentinz/bge-large-zh-v1.5:latest")
+
+            if embeddings:
+                self.vectorstore = FAISS.from_documents(texts, embeddings)
+
+                self.qa_chain = RetrievalQA.from_chain_type(
+                    llm=llm,
+                    chain_type="stuff",
+                    retriever=self.vectorstore.as_retriever(search_kwargs={"k": 3}),
+                    return_source_documents=True
+                )
+                print("✅ 企业级知识库设置完成！")
             else:
-                print("❌ 缺少必要的依赖，知识库功能被禁用")
-
+                print("❌ 无法创建嵌入模型，知识库功能将被禁用")
         except Exception as e:
             print(f"❌ 企业级知识库设置失败: {e}")
 
@@ -521,6 +492,7 @@ class EnterpriseKnowledgeBase:
         except Exception as e:
             print(f"知识库查询错误: {e}")
             return "抱歉，查询过程中出现了问题。"
+
 
 class EnterpriseSalesGPT:
     """企业级销售代理系统"""
@@ -758,6 +730,7 @@ class EnterpriseSalesGPT:
         """保存会话数据"""
         self.customer_manager.save_data()
 
+
 def demonstrate_enterprise_features():
     """演示企业级功能"""
     print("=" * 70)
@@ -815,6 +788,7 @@ def demonstrate_enterprise_features():
     sales_agent.save_session()
     print("\n✅ 会话数据已保存")
 
+
 def main():
     """主函数"""
     print("企业版 SalesGPT v5.0")
@@ -833,6 +807,7 @@ def main():
         print("\n" + "=" * 70)
         print("企业版 SalesGPT v5.0 演示结束")
         print("=" * 70)
+
 
 if __name__ == "__main__":
     main()
