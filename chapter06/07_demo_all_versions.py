@@ -6,7 +6,7 @@ SalesGPT 全版本演示脚本
 让您可以直观地看到每个版本的功能演进。
 
 运行方式：
-python demo_all_versions.py
+python 07_demo_all_versions.py
 
 作者：AI助手
 日期：2024年
@@ -14,9 +14,7 @@ python demo_all_versions.py
 
 import os
 import sys
-import time
 import warnings
-from typing import Dict, Any
 
 # 添加当前目录到Python路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))

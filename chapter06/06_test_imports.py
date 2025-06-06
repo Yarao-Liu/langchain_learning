@@ -5,7 +5,7 @@ SalesGPT 导入测试脚本
 这个脚本测试所有版本的SalesGPT是否能正常导入和初始化。
 
 运行方式：
-python test_imports.py
+python 06_test_imports.py
 """
 
 import os

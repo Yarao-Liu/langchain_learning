@@ -23,12 +23,10 @@
 
 import os
 import warnings
-import json
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 import dotenv
 from langchain.chains.llm import LLMChain
-from langchain_core.language_models import BaseLLM
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 

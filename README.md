@@ -205,7 +205,7 @@ python chapter05/56_agent_custom.py
 
 # SalesGPT 销售代理示例
 python chapter06/01_basic_salesGPT.py
-python chapter06/demo_all_versions.py
+python chapter06/07_demo_all_versions.py
 ```
 
 ## 章节详解
