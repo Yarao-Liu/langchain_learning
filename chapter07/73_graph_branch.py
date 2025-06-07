@@ -15,7 +15,10 @@ source (空节点) -> branch1 (支持者) -> sink (合并节点)
 日期：2024年
 """
 
-# 导入必要的库
+# ================================
+# 1. 导入依赖和环境配置
+# ================================
+
 import os
 import dotenv
 from langchain_core.messages import HumanMessage
@@ -35,7 +38,6 @@ if not api_key:
     exit(1)
 
 # 创建大语言模型实例
-# 使用 SiliconFlow 提供的 API 接口，兼容 OpenAI 格式
 llm = ChatOpenAI(
     api_key=api_key,
     base_url="https://api.siliconflow.cn/v1/",  # SiliconFlow API 地址
@@ -44,44 +46,60 @@ llm = ChatOpenAI(
 )
 
 # ================================
-# 定义三个不同角色的提示词模板
+# 2. 定义提示词模板和LLM链
 # ================================
 
-# 支持者角色：为任何主题提供支持论据
+# 支持者角色提示词模板
 fan_prompt = ChatPromptTemplate.from_messages([
     {
         "role": "system",
         "content": "现在你放弃一切想法，假装成为一个任何主题的狂热粉丝和追随者，应该尽一切能力吹捧主题的观点"
     },
-    MessagesPlaceholder(variable_name="messages")  # 动态插入消息历史
+    MessagesPlaceholder(variable_name="messages")
 ])
-# 创建支持者链：提示词模板 + LLM
-proponent = fan_prompt | llm
 
-# 反对者角色：为任何主题提供反对论据
+# 反对者角色提示词模板
 detractor_prompt = ChatPromptTemplate.from_messages([
     {
         "role": "system",
         "content": "现在你放弃一切想法，假装成为一个任何主题的狂热 detractor 和反对者，应该尽一切能力抨击主题的观点"
     },
-    MessagesPlaceholder(variable_name="messages")  # 动态插入消息历史
+    MessagesPlaceholder(variable_name="messages")
 ])
-# 创建反对者链：提示词模板 + LLM
-detractor = detractor_prompt | llm
 
-# 综合分析角色：分析双方观点并给出结论
+# 综合分析角色提示词模板
 synthesis_prompt = ChatPromptTemplate.from_messages([
     {
         "role": "system",
         "content": "你是一个专业的辩论家，需要根据辩论双方的观点，给出一个公正的结论"
     },
-    MessagesPlaceholder(variable_name="messages")  # 动态插入消息历史
+    MessagesPlaceholder(variable_name="messages")
 ])
 
+# 创建LLM链
+proponent = fan_prompt | llm      # 支持者链
+detractor = detractor_prompt | llm # 反对者链
+
 
 # ================================
-# 定义消息合并函数
+# 3. 定义工具函数
 # ================================
+
+def dictify(messages: list):
+    """
+    将消息列表转换为字典格式
+
+    这是为了适配 LangChain 的提示词模板格式要求
+    提示词模板中的 MessagesPlaceholder 需要 "messages" 键
+
+    参数:
+        messages: 消息列表
+
+    返回:
+        包含 "messages" 键的字典
+    """
+    return {"messages": messages}
+
 
 def merge_messages(messages):
     """
@@ -127,124 +145,105 @@ Arguments:
 final = merge_messages | synthesis_prompt | llm
 
 # ================================
-# 构建 LangGraph 分支合并图
+# 4. 构建 LangGraph 分支合并图
 # ================================
 
 # 创建消息图实例
 builder = MessageGraph()
 
-def dictify(messages: list):
-    """
-    将消息列表转换为字典格式
-
-    这是为了适配 LangChain 的提示词模板格式要求
-    提示词模板中的 MessagesPlaceholder 需要 "messages" 键
-
-    参数:
-        messages: 消息列表
-
-    返回:
-        包含 "messages" 键的字典
-    """
-    return {"messages": messages}
-
-# ================================
 # 添加图节点
-# ================================
+builder.add_node("source", lambda x: [])              # 起始节点，返回空列表
+builder.add_node("branch1", dictify | proponent)      # 支持者分支
+builder.add_node("branch2", dictify | detractor)      # 反对者分支
+builder.add_node("sink", merge_messages)              # 汇聚节点，合并结果
 
-# source 节点：起始节点，返回空列表作为初始状态
-# lambda x: [] 表示忽略输入，返回空的消息列表
-builder.add_node("source", lambda x: [])
-
-# branch1 节点：支持者分支
-# dictify | proponent 表示先转换格式，再调用支持者链
-builder.add_node("branch1", dictify | proponent)
-
-# branch2 节点：反对者分支
-# dictify | detractor 表示先转换格式，再调用反对者链
-builder.add_node("branch2", dictify | detractor)
-
-# sink 节点：汇聚节点，合并所有分支的结果
-builder.add_node("sink", merge_messages)
-
-# ================================
 # 设置图的连接关系
-# ================================
-
-# 设置入口点：从 source 节点开始
-builder.set_entry_point("source")
-
-# 添加边：定义节点之间的连接关系
-builder.add_edge("source", "branch1")    # source -> branch1 (支持者分支)
-builder.add_edge("source", "branch2")    # source -> branch2 (反对者分支)
-builder.add_edge("branch1", "sink")      # branch1 -> sink (汇聚)
-builder.add_edge("branch2", "sink")      # branch2 -> sink (汇聚)
-
-# 注意：LangGraph 会自动处理分支的并行执行和结果合并
-# sink 节点会等待所有输入分支完成后再执行
-
-# ================================
-# 编译并运行图
-# ================================
+builder.set_entry_point("source")                     # 设置入口点
+builder.add_edge("source", "branch1")                 # source -> branch1 (支持者分支)
+builder.add_edge("source", "branch2")                 # source -> branch2 (反对者分支)
+builder.add_edge("branch1", "sink")                   # branch1 -> sink (汇聚)
+builder.add_edge("branch2", "sink")                   # branch2 -> sink (汇聚)
 
 # 编译图：将图结构转换为可执行的工作流
 graph = builder.compile()
 
-# 执行图：输入一个主题，获得辩论结果
-print("=" * 60)
-print("LangGraph 分支合并辩论系统演示")
-print("=" * 60)
+# ================================
+# 5. 主程序执行
+# ================================
 
-try:
-    # 调用图，传入辩论主题
-    result = graph.invoke(HumanMessage(content="躺平是当代人的解药"))
-    print("\n最终结果:")
-    print(result)
+def main():
+    """主程序函数"""
+    print("=" * 60)
+    print("LangGraph 分支合并辩论系统演示")
+    print("=" * 60)
 
-except Exception as e:
-    print(f"执行过程中出现错误: {e}")
-    print("请检查 API 配置和网络连接")
+    # 定义辩论主题
+    topic = "躺平是当代人的解药"
+    input_message = HumanMessage(content=topic)
 
-print("\n" + "=" * 60)
-print("详细步骤执行过程:")
-print("=" * 60)
+    try:
+        # 执行图并获取最终结果
+        result = graph.invoke(input_message)
+        print(f"\n最终结果:")
+        print(result)
 
-# 使用 stream 方法获取每个步骤的详细信息
-input_message = HumanMessage(content="躺平是当代人的解药")
-steps = []
+        # 获取详细的步骤执行过程
+        print_step_details(input_message)
 
-print("\n逐步执行过程:")
-for step in graph.stream(input_message):
-    print(f"当前步骤: {step}")
-    steps.append(step)
+    except Exception as e:
+        print(f"执行过程中出现错误: {e}")
+        print("请检查 API 配置和网络连接")
 
-# 打印最后一个步骤的输出结果
-print("\n" + "=" * 40)
-print("最后一个步骤的详细输出:")
-print("=" * 40)
 
-if steps:
-    last_step = steps[-1]
-    print(f"最后步骤完整内容: {last_step}")
+def print_step_details(input_message):
+    """打印详细的步骤执行过程"""
 
-    # 遍历最后一个步骤中的所有节点输出
-    for node_name, node_output in last_step.items():
-        print(f"\n节点 '{node_name}' 的输出:")
-        print("-" * 30)
+    print("\n" + "=" * 60)
+    print("详细步骤执行过程:")
+    print("=" * 60)
 
-        if isinstance(node_output, list):
-            for i, item in enumerate(node_output):
-                if hasattr(item, 'content'):
-                    print(f"  消息 {i+1}: {item.content}")
-                else:
-                    print(f"  项目 {i+1}: {item}")
-        else:
-            if hasattr(node_output, 'content'):
-                print(f"  内容: {node_output.content}")
+    # 使用 stream 方法获取每个步骤的详细信息
+    steps = []
+
+    print("\n逐步执行过程:")
+    for step in graph.stream(input_message):
+        print(f"当前步骤: {step}")
+        steps.append(step)
+
+    # 打印最后一个步骤的输出结果
+    print("\n" + "=" * 40)
+    print("最后一个步骤的详细输出:")
+    print("=" * 40)
+
+    if steps:
+        last_step = steps[-1]
+        print(f"最后步骤完整内容: {last_step}")
+
+        # 遍历最后一个步骤中的所有节点输出
+        for node_name, node_output in last_step.items():
+            print(f"\n节点 '{node_name}' 的输出:")
+            print("-" * 30)
+
+            if isinstance(node_output, list):
+                for i, item in enumerate(node_output):
+                    if hasattr(item, 'content'):
+                        print(f"  消息 {i+1}: {item.content}")
+                    else:
+                        print(f"  项目 {i+1}: {item}")
             else:
-                print(f"  输出: {node_output}")
-else:
-    print("没有捕获到执行步骤")
+                if hasattr(node_output, 'content'):
+                    print(f"  内容: {node_output.content}")
+                else:
+                    print(f"  输出: {node_output}")
+    else:
+        print("没有捕获到执行步骤")
 
-print("\n" + "=" * 60)
-print("演示结束")
+
+# ================================
+# 6. 程序入口
+# ================================
+
+if __name__ == "__main__":
+    main()
+    print("\n" + "=" * 60)
+    print("演示结束")
