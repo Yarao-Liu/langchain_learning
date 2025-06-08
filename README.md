@@ -1,6 +1,6 @@
 # LangChain 中文学习实践项目
 
-这是一个全面的 LangChain 框架中文学习项目，从基础连接到高级应用，系统性地展示了如何使用 LangChain 构建各种 AI 应用。项目包含 70+ 个实践示例，涵盖模型连接、提示工程、输出解析、RAG 系统、链式处理、智能代理和渐进式SalesGPT开发等核心功能。
+这是一个全面的 LangChain 框架中文学习项目，从基础连接到高级应用，系统性地展示了如何使用 LangChain 构建各种 AI 应用。项目包含 80+ 个实践示例，涵盖模型连接、提示工程、输出解析、RAG 系统、链式处理、智能代理、LangGraph图工作流和渐进式SalesGPT开发等核心功能。
 
 ## 项目特点
 
@@ -10,6 +10,7 @@
 - 📚 **丰富的文档处理**：支持 PDF、HTML、文本、Markdown 等多种格式
 - 🔍 **高效检索系统**：使用 FAISS、Chroma 向量数据库进行语义检索
 - 🤖 **智能代理系统**：包含搜索、工具调用、记忆管理等高级功能
+- 🔄 **图工作流系统**：基于 LangGraph 的复杂工作流和状态管理
 - 🎯 **渐进式开发**：SalesGPT系列展示从简单到企业级的完整开发过程
 - 💡 **详细注释**：每个示例都有完整的中文注释和说明
 - 🛠️ **实用工具**：包含自定义解析器、记忆管理、错误处理等实用组件
@@ -106,6 +107,19 @@
 │       ├── car_knowledge_base.txt     # 产品知识库
 │       ├── comprehensive_sales_data.json  # 综合销售数据
 │       └── product_summary.json       # 产品摘要信息
+├── chapter07/          # LangGraph 图工作流系统
+│   ├── 71_graph_base.py               # 基础图工作流
+│   ├── 72_graph_condition.py          # 条件分支图
+│   ├── 73_graph_branch.py             # 分支合并图（辩论系统）
+│   ├── 74_graph_multi.py              # 多子图系统
+│   ├── 75_1_agent_batch.py            # 批处理代理（笑话分析）
+│   ├── 75_2_agent_batch.py            # 批处理代理（笑话生成）
+│   ├── 76_1_graph_tests.py            # 图工作流测试套件
+│   ├── 76_2_graph_demo.py             # 交互式演示系统
+│   ├── graph_loop.py                  # 智能Agent工具调用循环
+│   ├── graph_learning.md              # LangGraph学习指南
+│   └── data/                          # 数据文件
+│       └── joke.json                  # 笑话数据
 └── .env                               # 环境变量配置文件
 ```
 
@@ -129,6 +143,7 @@ langchain-core
 langchain-openai
 langchain-ollama
 langchain-chroma
+langgraph
 faiss-cpu
 python-dotenv
 zhipuai
@@ -166,7 +181,7 @@ WEATHER_API_KEY=your_weather_api_key_here
 # 安装基础依赖
 pip install langchain langchain-community langchain-core
 pip install langchain-openai langchain-ollama langchain-chroma
-pip install faiss-cpu python-dotenv requests nltk pydantic
+pip install langgraph faiss-cpu python-dotenv requests nltk pydantic
 
 # 安装特定服务依赖
 pip install zhipuai  # 智谱AI
@@ -206,6 +221,10 @@ python chapter05/56_agent_custom.py
 # SalesGPT 销售代理示例
 python chapter06/01_basic_salesGPT.py
 python chapter06/07_demo_all_versions.py
+
+# LangGraph 图工作流示例
+python chapter07/71_graph_base.py
+python chapter07/76_2_graph_demo.py
 ```
 
 ## 章节详解
@@ -263,6 +282,16 @@ python chapter06/07_demo_all_versions.py
 - **v5.0 企业版**: 完整的CRM和客户管理功能
 - **演示系统**: 全版本对比演示和测试工具
 
+### Chapter 07: LangGraph 图工作流系统 🔄
+掌握复杂的图状态工作流和智能代理编排：
+- **基础图工作流**: 简单的消息图和节点连接
+- **条件分支**: 基于LLM决策的动态路由
+- **分支合并**: 多路径并行处理和结果合并
+- **多子图系统**: 复杂的嵌套图结构和状态管理
+- **智能Agent循环**: 工具调用、状态管理和错误处理
+- **批处理系统**: 高效的批量数据处理
+- **交互式演示**: 完整的学习和测试系统
+
 ## 核心功能特性
 
 ### 🔄 模型集成
@@ -295,6 +324,12 @@ python chapter06/07_demo_all_versions.py
 - 输出验证和修复
 - 自定义解析器
 
+### 🔄 图工作流
+- 状态管理和数据流控制
+- 条件分支和动态路由
+- 多节点协作和并行处理
+- 复杂业务逻辑编排
+
 ## 学习路径建议
 
 ### 🚀 初学者路径
@@ -307,6 +342,7 @@ python chapter06/07_demo_all_versions.py
 1. **Chapter 04**: 掌握链式处理，构建复杂工作流
 2. **Chapter 05**: 开发智能代理，集成外部工具
 3. **Chapter 06**: SalesGPT系列，从简单到企业级的完整开发
+4. **Chapter 07**: LangGraph图工作流，掌握复杂状态管理和业务编排
 
 ### 💡 实践建议
 - 每个示例都包含详细注释，建议逐行阅读理解
@@ -344,6 +380,18 @@ python chapter06/07_demo_all_versions.py
 - **销售流程**: 修改SALES_STAGES字典自定义销售阶段
 - **人员信息**: 更新salesperson_info字典
 
+### Q: LangGraph和普通链式处理有什么区别？
+- **状态管理**: LangGraph提供持久化的状态管理
+- **条件分支**: 支持基于状态的动态路由决策
+- **并行处理**: 可以同时执行多个节点
+- **错误恢复**: 更好的错误处理和重试机制
+
+### Q: 如何调试LangGraph工作流？
+- **使用演示系统**: 运行76_2_graph_demo.py查看详细执行过程
+- **添加打印语句**: 在节点函数中添加状态打印
+- **查看学习指南**: 阅读graph_learning.md了解常见问题
+- **运行测试**: 使用76_1_graph_tests.py验证功能
+
 ## 贡献指南
 
 欢迎提交 Issue 和 Pull Request！
@@ -368,6 +416,7 @@ python chapter06/07_demo_all_versions.py
 ## 致谢
 
 - [LangChain](https://github.com/langchain-ai/langchain) - 强大的 LLM 应用开发框架
+- [LangGraph](https://github.com/langchain-ai/langgraph) - 先进的图工作流编排框架
 - [Ollama](https://ollama.ai/) - 优秀的本地模型运行平台
 - [FAISS](https://github.com/facebookresearch/faiss) - 高效的向量检索库
 - [Chroma](https://github.com/chroma-core/chroma) - 现代化的向量数据库
